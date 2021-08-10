@@ -93,17 +93,14 @@ def process_log_data(spark, input_data, output_data):
     # read in song data to use for songplays table
     song_data = "{}song_data/*/*/*/*.json".format(input_data)
     song_df = spark.read.json(song_data)
-    song_df = song_df.withColumn("idx", monotonically_increasing_id())
+    song_df = song_df.withColumn("songplay_id", monotonically_increasing_id())
     song_df.createOrReplaceTempView("raw_song_data")
 
     # extract columns from joined song and log datasets to create songplays table 
-    songplays_table = spark.sql("""
-                                SELECT DISTINCT idx as songplay_id, format_datetime(log.ts) as start_time, year(format_datetime(log.ts)) as year, \
-                                                month(format_datetime(log.ts)) as month, log.userId, log.level, song.song_id, song.artist_id, \
-                                                log.sessionId, log.location, log.userAgent
-                                FROM raw_log_data as log JOIN raw_song_data as song ON (log.artist = song.artist_name)
-                                WHERE log.page = 'NextSong'
-                            """)
+    songplays_table = df.join(song_df, df.artist == song_df.artist_name, "inner").distinct() \
+                    .select("start_time", "userId", "level", "sessionId", "location", "userAgent", "song_id", "artist_id", "songplay_id") \
+                    .withColumn("month", month(col("start_time"))) \
+                    .withColumn("year", year(col("start_time")))
 
     # write songplays table to parquet files partitioned by year and month
     songplays_table.write.partitionBy("year", "month").mode('overwrite').parquet(output_data + "songplays/songplays_table.parquet")
