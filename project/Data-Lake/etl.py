@@ -15,6 +15,11 @@ os.environ['AWS_SECRET_ACCESS_KEY']=config['KEYS']['AWS_SECRET_ACCESS_KEY']
 
 
 def create_spark_session():
+    """
+    
+    Gets an existing Spark session or creates one.
+    
+    """
     spark = SparkSession \
         .builder \
         .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:2.7.0") \
@@ -23,6 +28,16 @@ def create_spark_session():
 
 
 def process_song_data(spark, input_data, output_data):
+    """
+    
+    Processes the song dataset, and creates parquet files for song and artist tables.
+    
+    Args:
+        :param spark: Spark session
+        :param input_data: dataset file path
+        :param output_data: parquet output file path
+        
+    """
     # get filepath to song data file
     song_data = "{}song_data/*/*/*/*.json".format(input_data)
     
@@ -34,6 +49,7 @@ def process_song_data(spark, input_data, output_data):
     songs_table = spark.sql("""
                                 SELECT DISTINCT song_id, title, artist_id, year, duration
                                 FROM raw_song_data
+                                WHERE song_id IS NOT NULL
                            """)
     
     # write songs table to parquet files partitioned by year and artist
@@ -43,6 +59,7 @@ def process_song_data(spark, input_data, output_data):
     artists_table = spark.sql("""
                                 SELECT DISTINCT artist_id, artist_name, artist_location, artist_latitude, artist_longitude
                                 FROM raw_song_data
+                                WHERE artist_id IS NOT NULL
                             """)
     
     # write artists table to parquet files
@@ -50,6 +67,16 @@ def process_song_data(spark, input_data, output_data):
 
 
 def process_log_data(spark, input_data, output_data):
+    """
+    
+    Processes the log and song dataset, and creates parquet files for user, time and songplays tables.
+    
+    Args:
+        :param spark: Spark session
+        :param input_data: dataset file path
+        :param output_data: parquet output file path
+        
+    """
     # get filepath to log data file
     log_data = "{}log-data/*.json".format(input_data)
 
@@ -64,6 +91,7 @@ def process_log_data(spark, input_data, output_data):
     users_table = spark.sql("""
                                 SELECT DISTINCT userId, firstName, lastName, gender, level
                                 FROM raw_log_data
+                                WHERE userID IS NOT NULL
                             """)
     
     # write users table to parquet files
@@ -81,10 +109,12 @@ def process_log_data(spark, input_data, output_data):
     df = df.withColumn("start_time", get_datetime(df.ts))
     
     # extract columns to create time table
+    df.createOrReplaceTempView("raw_log_data")
     time_table = spark.sql("""
                             SELECT DISTINCT log.start_time, hour(log.timestamp) as hour, day(log.timestamp) as day, weekofyear(log.timestamp) as week, \
                                             month(log.timestamp) as month, year(log.timestamp) as year, dayofmonth(log.timestamp) as weekday
                             FROM raw_log_data as log
+                            WHERE start_time IS NOT NULL
                         """)
     
     # write time table to parquet files partitioned by year and month
@@ -98,7 +128,7 @@ def process_log_data(spark, input_data, output_data):
 
     # extract columns from joined song and log datasets to create songplays table 
     songplays_table = df.join(song_df, df.artist == song_df.artist_name, "inner").distinct() \
-                    .select("ts".alias("start_time"), "userId", "level", "sessionId", "location", "userAgent", "song_id", "artist_id", "songplay_id")
+                    .select("start_time", "userId", "level", "sessionId", "location", "userAgent", "song_id", "artist_id", "songplay_id")
     songplays_table = songplays_table.withColumn("month", month(col("start_time"))) \
                                      .withColumn("year", year(col("start_time")))
 
@@ -107,6 +137,11 @@ def process_log_data(spark, input_data, output_data):
 
 
 def main():
+    """
+    
+    Main function
+    
+    """
     spark = create_spark_session()
     input_data = "s3a://lake-proj-bucket/"
     output_data = "s3a://lake-proj-bucket/output/"
