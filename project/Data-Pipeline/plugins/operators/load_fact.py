@@ -6,6 +6,7 @@ class LoadFactOperator(BaseOperator):
 
     ui_color = '#F98866'
     
+    drop_sql = "DROP IF EXISTS {}"
     sql = """
         INSERT INTO {}
         {}
@@ -31,6 +32,12 @@ class LoadFactOperator(BaseOperator):
 
     def execute(self, context):
         redshift = PostgresHook(postgres_conn_id = self.redshift_conn_id)
+        
+        self.log.info('Dropping the table in case it exists before execution')
+        drop_table = LoadFactOperator.drop_sql.format(
+            self.destination_table
+        )
+        redshift.run(drop_table)
         
         self.log.info('Inserting data into table')
         load_fact = LoadFactOperator.sql.format(
