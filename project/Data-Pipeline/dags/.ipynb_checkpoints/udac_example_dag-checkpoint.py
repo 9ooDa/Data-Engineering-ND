@@ -70,7 +70,8 @@ load_user_dimension_table = LoadDimensionOperator(
     dag=dag,
     redshift_conn_id='redshift',
     destination_table='users',
-    sql_stmt=SqlQueries.user_table_insert
+    sql_stmt=SqlQueries.user_table_insert,
+    truncation = True
 )
 
 load_song_dimension_table = LoadDimensionOperator(
@@ -78,7 +79,8 @@ load_song_dimension_table = LoadDimensionOperator(
     dag=dag,
     redshift_conn_id='redshift',
     destination_table='songs',
-    sql_stmt=SqlQueries.song_table_insert
+    sql_stmt=SqlQueries.song_table_insert,
+    truncation = True
 )
 
 load_artist_dimension_table = LoadDimensionOperator(
@@ -86,7 +88,8 @@ load_artist_dimension_table = LoadDimensionOperator(
     dag=dag,
     redshift_conn_id='redshift',
     destination_table='artists',
-    sql_stmt=SqlQueries.artist_table_insert
+    sql_stmt=SqlQueries.artist_table_insert,
+    truncation = True
 )
 
 load_time_dimension_table = LoadDimensionOperator(
@@ -94,7 +97,8 @@ load_time_dimension_table = LoadDimensionOperator(
     dag=dag,
     redshift_conn_id='redshift',
     destination_table='time',
-    sql_stmt=SqlQueries.time_table_insert
+    sql_stmt=SqlQueries.time_table_insert,
+    truncation = True
 )
 
 run_quality_checks = DataQualityOperator(
