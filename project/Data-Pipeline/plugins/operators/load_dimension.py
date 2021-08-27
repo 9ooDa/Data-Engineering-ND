@@ -6,7 +6,7 @@ class LoadDimensionOperator(BaseOperator):
 
     ui_color = '#80BD9E'
     
-    drop_sql = "DROP TABLE IF EXISTS {}"
+    #drop_sql = "DROP TABLE IF EXISTS {}"
     truncate_sql = "TRUNCATE {}"
     append_sql = """
         INSERT INTO {}
@@ -15,9 +15,6 @@ class LoadDimensionOperator(BaseOperator):
 
     @apply_defaults
     def __init__(self,
-                 # Define your operators params (with defaults) here
-                 # Example:
-                 # conn_id = your-connection-name
                  redshift_conn_id = "",
                  sql_stmt = "",
                  destination_table = "",
@@ -25,9 +22,6 @@ class LoadDimensionOperator(BaseOperator):
                  *args, **kwargs):
 
         super(LoadDimensionOperator, self).__init__(*args, **kwargs)
-        # Map params here
-        # Example:
-        # self.conn_id = conn_id
         self.redshift_conn_id = redshift_conn_id
         self.sql_stmt = sql_stmt
         self.destination_table = destination_table
@@ -35,12 +29,6 @@ class LoadDimensionOperator(BaseOperator):
 
     def execute(self, context):
         redshift = PostgresHook(postgres_conn_id = self.redshift_conn_id)
-        
-        self.log.info('Dropping the table in case it exists before execution')
-        drop_table = LoadDimensionOperator.drop_sql.format(
-            self.destination_table
-        )
-        redshift.run(drop_table)
         
         if self.truncation == True:
             self.log.info('Truncating the table when the destination is not empty')
@@ -57,3 +45,8 @@ class LoadDimensionOperator(BaseOperator):
         
         redshift.run(insert_table)
         
+        #self.log.info('Dropping the table in case it exists before execution')
+        #drop_table = LoadDimensionOperator.drop_sql.format(
+        #    self.destination_table
+        #)
+        #redshift.run(drop_table)
