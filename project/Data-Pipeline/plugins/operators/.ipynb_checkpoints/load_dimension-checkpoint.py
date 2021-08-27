@@ -6,7 +6,7 @@ class LoadDimensionOperator(BaseOperator):
 
     ui_color = '#80BD9E'
     
-    drop_sql = "DROP IF EXISTS {}"
+    drop_sql = "DROP TABLE IF EXISTS {}"
     truncate_sql = "TRUNCATE {}"
     append_sql = """
         INSERT INTO {}

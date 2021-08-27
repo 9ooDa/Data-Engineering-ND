@@ -6,7 +6,7 @@ class LoadFactOperator(BaseOperator):
 
     ui_color = '#F98866'
     
-    drop_sql = "DROP IF EXISTS {}"
+    drop_sql = "DROP TABLE IF EXISTS {}"
     sql = """
         INSERT INTO {}
         {}
