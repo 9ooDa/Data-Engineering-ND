@@ -32,3 +32,29 @@ INSERT INTO dim_temp (dt, avg_temp, avg_temp_uncertainty, city, country, latitud
                     month, year) \
 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
 """
+
+# auxiliary tables
+insert_cntry_code="""
+INSERT INTO aux_country_code (country_code, country_name) \
+VALUES (%s, %s)
+"""
+
+insert_port_code="""
+INSERT INTO aux_port_code (port_code, port_loc_city, port_loc_state) \
+VALUES (%s, %s, %s)
+"""
+
+insert_mode="""
+INSERT INTO aux_mode (code, mode) \
+VALUES (%s, %s)
+"""
+
+insert_state_code="""
+INSERT INTO aux_state_code (state_code, state) \
+VALUES (%s, %s)
+"""
+
+insert_visa="""
+INSERT INTO aux_visa (code, visa) \
+VALUES (%s, %s)
+"""

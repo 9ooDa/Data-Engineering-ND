@@ -5,6 +5,12 @@ DROP TABLE IF EXISTS dim_demo_info;
 DROP TABLE IF EXISTS dim_demo_stat;
 DROP TABLE IF EXISTS dim_temp;
 
+DROP TABLE IF EXISTS aux_country_code;
+DROP TABLE IF EXISTS aux_port_code;
+DROP TABLE IF EXISTS aux_mode;
+DROP TABLE IF EXISTS aux_state_code;
+DROP TABLE IF EXISTS aux_visa;
+
 
 CREATE TABLE IF NOT EXISTS public.fact_immigration (
 	cic_id float PRIMARY KEY,
@@ -71,4 +77,30 @@ CREATE TABLE IF NOT EXISTS public.dim_temp (
     longitude varchar,
     month int,
     year int
+);
+
+CREATE TABLE IF NOT EXISTS public.aux_country_code (
+    country_code int PRIMARY KEY,
+    country_name varchar
+);
+
+CREATE TABLE IF NOT EXISTS public.aux_port_code (
+    port_code varchar PRIMARY KEY,
+    port_loc_city varchar,
+    port_loc_state varchar
+);
+
+CREATE TABLE IF NOT EXISTS public.aux_mode (
+    code int PRIMARY KEY,
+    mode varchar
+);
+
+CREATE TABLE IF NOT EXISTS public.aux_state_code (
+    state_code int PRIMARY KEY,
+    state varchar
+);
+
+CREATE TABLE IF NOT EXISTS public.aux_visa (
+    code int PRIMARY KEY,
+    visa varchar
 );
